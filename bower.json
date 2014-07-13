@@ -1,8 +1,8 @@
 {
-    "name": "angular-file-upload",
+    "name": "cc-angular-file-upload",
     "version": "0.5.8",
     "main": "angular-file-upload.js",
-    "homepage": "https://github.com/nervgh/angular-file-upload",
+    "homepage": "https://github.com/mtsanko/cc-angular-file-upload",
     "ignore": ["examples"],
     "dependencies": {
         "angular": "~1.2.11",
