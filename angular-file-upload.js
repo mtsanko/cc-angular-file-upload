@@ -1,6 +1,6 @@
 /*
- angular-file-upload v0.5.7
- https://github.com/nervgh/angular-file-upload
+ cc-angular-file-upload v0.5.8
+ https://github.com/mtsanko/cc-angular-file-upload
 */
 (function(angular, factory) {
     if (typeof define === 'function' && define.amd) {
@@ -36,12 +36,10 @@ app.directive('ngFileDrop', ['$fileUploader', function ($fileUploader) {
                         event.dataTransfer :
                         event.originalEvent.dataTransfer; // jQuery fix;
 
-                    if(dataTransfer.types && dataTransfer.types.contains('Files')) {
-                        event.preventDefault();
-                        event.stopPropagation();
-                        dataTransfer.dropEffect = 'copy';
-                        scope.$broadcast('file:addoverclass');
-                    }
+                    event.preventDefault();
+                    event.stopPropagation();
+                    dataTransfer.dropEffect = 'copy';
+                    scope.$broadcast('file:addoverclass');
                 })
                 .bind('dragleave', function (event) {
                     if (event.target === element[0]) {
@@ -210,6 +208,7 @@ app.factory('$fileUploader', ['$compile', '$rootScope', '$http', '$window', func
                 var item = new Item(angular.extend({
                     url: this.url,
                     alias: this.alias,
+                    relativePath: file.webkitRelativePath || file.name,
                     headers: angular.copy(this.headers),
                     formData: angular.copy(this.formData),
                     removeAfterUpload: this.removeAfterUpload,
@@ -247,6 +246,7 @@ app.factory('$fileUploader', ['$compile', '$rootScope', '$http', '$window', func
             if (item._destroy) item._destroy();
             this.queue.splice(index, 1);
             this.progress = this._getTotalProgress();
+            this.trigger('afterremovingfile', item);
         },
 
         /**
@@ -483,10 +483,23 @@ app.factory('$fileUploader', ['$compile', '$rootScope', '$http', '$window', func
             });
 
             iframe.bind('load', function() {
-                // fixed angular.contents() for iframes
-                var html = iframe[0].contentDocument.body.innerHTML;
-                var xhr = {response: html, status: 200, dummy: true};
-                var response = that._transformResponse(xhr.response);
+                var response;
+                var xhr = {response: response, status: 200, dummy: true};
+                // Fix for legacy IE browsers that loads internal error page
+                // when failed WS response received. In consequence iframe
+                // content access denied error is thrown becouse trying to
+                // access cross domain page. When such thing occurs notifying
+                // with empty response object. See more info at:
+                // http://stackoverflow.com/questions/151362/access-is-denied-error-on-accessing-iframe-document-object
+                // Note that if non standard 4xx or 5xx error code returned
+                // from WS then response content can be accessed without error
+                // but 'XHR' status becomes 200. In order to avoid confusion
+                // returning response via same 'success' event handler.
+                try {
+                    // fixed angular.contents() for iframes
+                    xhr.response = iframe[0].contentDocument.body.innerHTML;
+                    response = that._transformResponse(xhr.response);
+                } catch (e) {}
                 that.trigger('in:success', xhr, item, response);
                 that.trigger('in:complete', xhr, item, response);
             });
