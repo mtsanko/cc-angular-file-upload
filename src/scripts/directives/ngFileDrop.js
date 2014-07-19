@@ -18,7 +18,7 @@ app.directive('ngFileDrop', ['$fileUploader', function ($fileUploader) {
                 if (item.isFile) {
                   // Get file
                   item.file(function(file) {
-                    file.relativePath=path + file.name;
+                    file.dropRelativePath=path;
                     scope.$emit('file:add', file, scope.$eval(attributes.ngFileDrop));
                   });
                 } else if (item.isDirectory) {
