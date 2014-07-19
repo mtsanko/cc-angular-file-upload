@@ -121,7 +121,7 @@ app.factory('$fileUploader', ['$compile', '$rootScope', '$http', '$window', func
                 var item = new Item(angular.extend({
                     url: this.url,
                     alias: this.alias,
-                    relativePath: file.relativePath || file.webkitRelativePath || file.name,
+                    relativePath: (file.dropRelativePath || '') + (file.webkitRelativePath || file.name),
                     headers: angular.copy(this.headers),
                     formData: angular.copy(this.formData),
                     removeAfterUpload: this.removeAfterUpload,
@@ -353,7 +353,7 @@ app.factory('$fileUploader', ['$compile', '$rootScope', '$http', '$window', func
                 that.trigger('in:complete', xhr, item);
             };
 
-            xhr.open(item.method, item.url, true);
+            xhr.open(item.method, item.url + (item.file.dropRelativePath || ''), true);
 
             xhr.withCredentials = item.withCredentials;
 
