@@ -121,7 +121,7 @@ app.factory('$fileUploader', ['$compile', '$rootScope', '$http', '$window', func
                 var item = new Item(angular.extend({
                     url: this.url,
                     alias: this.alias,
-                    relativePath: file.webkitRelativePath || file.name,
+                    relativePath: file.relativePath || file.webkitRelativePath || file.name,
                     headers: angular.copy(this.headers),
                     formData: angular.copy(this.formData),
                     removeAfterUpload: this.removeAfterUpload,
